@@ -211,8 +211,8 @@
           .map(row => ({
             nama: row[Object.keys(row)[5]] || '',
             barcode: row[Object.keys(row)[6]] || '',
-            lokasi: row[Object.keys(row)[7]] || '',
-            fisik: row[Object.keys(row)[8]] || ''
+            lokasi: row[Object.keys(row)[7]] || '0',
+            fisik: row[Object.keys(row)[8]] || '0'
         }));
         // Filter data yang benar-benar punya nilai di salah satu kolom (optional, silakan dihapus jika ingin tampilkan semua)
         dataBarang = dataBarang.filter(row => (
