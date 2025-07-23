@@ -23,7 +23,7 @@
     }
     /* Judul aplikasi */
     h2 {
-      margin: 0 auto 18px;
+      margin: 0 auto 8px;
       color: #1e3c72;
       text-align: center;
       font-weight: 600;
@@ -173,7 +173,7 @@
   // Menampilkan data ke tabel berdasarkan hasil parsing CSV
   function renderTable(data) {
     const tbody = document.querySelector('#data-table tbody');
-    if (!data || data.length === 0) {
+    if (!data || data.length ) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty">Tidak ada data ditemukan.</td></tr>';
       return;
     }
