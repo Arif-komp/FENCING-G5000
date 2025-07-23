@@ -3,86 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FISIK FENCING GUDANG G5000</title>
+  <title>FISIK FENCING</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #f1f5f9;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 700px;
-      margin: 30px auto 40px;
-      background: #fff;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 9px rgba(0,0,0,0.06);
-    }
-    h2 {
-      margin-top: 0;
-      color: #1e3c72;
-      text-align: center;
-    }
-    .search-box {
-      width: 100%;
-      padding: 12px;
-      font-size: 1.1em;
-      border: 2px solid #d4d7dd;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      box-sizing: border-box;
-    }
-    .scroll-table-container {
-      margin-top: 16px;
-      overflow: auto;
-      max-height: 66vh; /* Scroll hanya di area table */
-      border: 1px solid #d1d8e4;
-      border-radius: 8px;
-      background: #fafbff;
-    }
-    #data-table {
-      width: 100%;
-      border-collapse: collapse; /* garis antar kolom dan baris */
-      background: #fff;
-    }
-    #data-table th,
-    #data-table td {
-      padding: 10px 12px;
-      border: 1px solid #d1d8e4;
-      text-align: left;
-      font-size: 1em;
-      white-space: nowrap;
-      background: inherit;
-    }
-    #data-table th {
-      background: #e4e9f7;
-      color: #1e3c72;
-      position: sticky;
-      top: 0;
-    }
-    #data-table tr:hover {
-      background: #f4f8fa;
-    }
-    #data-table tbody tr:nth-child(even) {
-      background: #f7f9fc;
-    }
-    @media (max-width: 600px) {
-      .container {
-        padding: 8px;
-      }
-      #data-table th, #data-table td {
-        padding: 8px 10px;
-        font-size: .96em;
-      }
-    }
+    body { font-family: sans-serif; background: #f5f7fa; margin: 0; padding: 10px; }
+    .container { max-width: 900px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px; }
+    h2 { color: #1e3c72; text-align: center; margin-top: 0; }
+    .search-box { width: 100%; padding: 12px; font-size: 1.1em; border: 2px solid #ddd; border-radius: 6px; margin: 16px 0; box-sizing: border-box; }
+    .lokasi-btn { display: inline-block; background: #e4e9f7; color: #1e3c72; border: 2px solid #d4d7dd; border-radius: 6px; padding: 8px 16px; margin: 0 6px 12px 0; cursor: pointer; font-weight: 600; }
+    .lokasi-btn.active { background: #4b6cb7; color: #fff; border-color: #4b6cb7; }
+    .scroll-table-container { overflow: auto; border: 1px solid #d1d8e4; border-radius: 6px; background: #fff; margin-top: 8px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    table th, table td { border: 1px solid #d1d8e4; padding: 10px 12px; text-align: left; white-space: nowrap; }
+    table th { background: #e4e9f7; color: #1e3c72; font-weight: 600; position: sticky; top: 0; }
+    table tr:hover { background: #f4f8fa; cursor: default; }
+    .loading { text-align: center; color: #777; font-style: italic; margin: 8px 0; }
+    .empty { text-align: center; color: #777; font-style: italic; margin: 8px 0; }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Fisik Fencing Gudang G5000</h2>
-    <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autofocus autocomplete="off"/>
+    <h2>Fisik Fencing Gudang G5000 dan GM</h2>
+    <div>
+      <span class="lokasi-btn" id="g5000-btn">Gudang G5000</span>
+      <span class="lokasi-btn" id="gm-btn">Gudang GM</span>
+    </div>
+    <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autocomplete="off">
     <div class="scroll-table-container">
       <table id="data-table">
         <thead>
@@ -93,76 +39,90 @@
             <th>Fisik</th>
           </tr>
         </thead>
-        <tbody>
-          <tr><td colspan="4" style="text-align:center;">Ngena Samporo...</td></tr>
+        <tbody id="table-body">
+          <tr class="empty"><td colspan="4">Pilih gudang terlebih dahulu.</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 <script>
-  // Ganti URL dengan link CSV dari Google Sheets
-  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv";
-  let dataBarang = [];
+  // Ganti dengan URL CSV masing-masing gudang
+  const CSV_URLS = {
+    "G5000": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv",
+    "GM": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg028wvK1zQ_E6oo5Y3bZYwbbukwI5D_C2vd_dAyChSHWAUnvta-yz9mPY9sy5gqXQ0Thhgd-6MSlo/pub?output=csv"
+  };
 
+  let dataBarang = [];
+  let activeLokasi = null;
+  let searchKeyword = "";
+
+  // Fungsi tampilkan data di tabel
   function renderTable(data) {
-    const tbody = document.querySelector('#data-table tbody');
-    if (!data.length) {
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;font-style:italic;">Tidak ada data ditemukan.</td></tr>';
+    const tbody = document.querySelector('#table-body');
+    if (!data) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">Pilih gudang terlebih dahulu.</td></tr>';
       return;
-    } else {
-      // Hapus dulu notifikasi "Memuat data..." jika ada
-      tbody.innerHTML = '';
     }
-    data.forEach(barang => {
-      tbody.insertAdjacentHTML('beforeend',
-        `<tr>
-          <td>${barang.nama}</td>
-          <td>${barang.barcode}</td>
-          <td>${barang.lokasi}</td>
-          <td>${barang.fisik}</td>
-        </tr>`
-      );
-    });
+    if (!data.length) {
+      tbody.innerHTML = '<tr class="empty"><td colspan="4">Tidak ada data ditemukan.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = data.map(item => `
+      <tr>
+        <td>${item["Nama Produk"] || '-'}</td>
+        <td>${item.Barcode || '-'}</td>
+        <td>${item.Lokasi || '-'}</td>
+        <td>${item.Fisik || '-'}</td>
+      </tr>
+    `).join('');
   }
 
-  function loadData() {
-    Papa.parse(CSV_URL, {
+  // Fungsi filter data sesuai pencarian
+  function applyFilter() {
+    if (!activeLokasi) {
+      renderTable(null);
+      return;
+    }
+    const filtered = dataBarang.filter(item =>
+      !searchKeyword ||
+      (item["Nama Produk"] && item["Nama Produk"].toLowerCase().includes(searchKeyword.toLowerCase())) ||
+      (item.Barcode && item.Barcode.toLowerCase().includes(searchKeyword.toLowerCase()))
+    );
+    renderTable(filtered);
+  }
+
+  // Fungsi load data dari CSV
+  function loadData(lokasi) {
+    activeLokasi = lokasi;
+    document.querySelectorAll('.lokasi-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById(`${lokasi.toLowerCase()}-btn`).classList.add('active');
+    document.querySelector('#table-body').innerHTML = '<tr class="loading"><td colspan="4">Memuat data...</td></tr>';
+
+    Papa.parse(CSV_URLS[lokasi], {
       download: true,
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        // Ambil kolom F,G,H,I (header: 5,6,7,8), sesuaikan jika struktur header berbeda
-        dataBarang = results.data
-          .filter(row => row[Object.keys(row)[5]] || row[Object.keys(row)[6]] || row[Object.keys(row)[7]] || row[Object.keys(row)[8]])
-          .map(row => ({
-            nama: row[Object.keys(row)[5]] || '',
-            barcode: row[Object.keys(row)[6]] || '',
-            lokasi: row[Object.keys(row)[7]] || '',
-            fisik: row[Object.keys(row)[8]] || ''
-          }));
-        renderTable(dataBarang);
+        dataBarang = results.data;
+        applyFilter();
       },
       error: (err) => {
-        document.querySelector('#data-table tbody').innerHTML =
-          '<tr><td colspan="4" style="color:red;text-align:center;">Gagal memuat data.</td></tr>';
+        document.querySelector('#table-body').innerHTML =
+          '<tr class="empty"><td colspan="4" style="color:red">Gagal memuat data.</td></tr>';
         console.error(err);
       }
     });
   }
 
-  // Live search
-  document.getElementById('search').addEventListener('input', function() {
-    const keyword = this.value.trim().toLowerCase();
-    const filtered = (!keyword) ? dataBarang :
-      dataBarang.filter(b => (
-        (b.nama && b.nama.toLowerCase().includes(keyword)) ||
-        (b.barcode && b.barcode.toLowerCase().includes(keyword))
-      ));
-    renderTable(filtered);
-  });
+  // Tombol pilih gudang
+  document.getElementById('g5000-btn').addEventListener('click', () => loadData('G5000'));
+  document.getElementById('gm-btn').addEventListener('click', () => loadData('GM'));
 
-  // Mulai load data
-  loadData();
+  // Live search (hanya aktif jika data sudah dimuat)
+  document.getElementById('search').addEventListener('input', function() {
+    searchKeyword = this.value.trim();
+    applyFilter();
+  });
 </script>
 </body>
 </html>
