@@ -200,11 +200,19 @@
       dynamicTyping: true,
       complete: (results) => {
         // Ambil kolom 1,2,3,4 (index 0,1,2,3), atau sesuaikan dengan struktur CSV Anda
-        dataBarang = results.data.map(row => ({
+   /*     dataBarang = results.data.map(row => ({
           nama: row[Object.keys(row)[0]],
           barcode: row[Object.keys(row)[1]],
           lokasi: row[Object.keys(row)[2]],
           fisik: row[Object.keys(row)[3]]
+    */
+        dataBarang = results.data
+          .filter(row => row[Object.keys(row)[5]] || row[Object.keys(row)[6]] || row[Object.keys(row)[7]] || row[Object.keys(row)[8]])
+          .map(row => ({
+            nama: row[Object.keys(row)[5]] || '',
+            barcode: row[Object.keys(row)[6]] || '',
+            lokasi: row[Object.keys(row)[7]] || '',
+            fisik: row[Object.keys(row)[8]] || ''
         }));
         // Filter data yang benar-benar punya nilai di salah satu kolom (optional, silakan dihapus jika ingin tampilkan semua)
         dataBarang = dataBarang.filter(row => (
