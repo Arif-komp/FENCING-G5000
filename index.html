@@ -173,7 +173,7 @@
   // Menampilkan data ke tabel berdasarkan hasil parsing CSV
   function renderTable(data) {
     const tbody = document.querySelector('#data-table tbody');
-    if (!data || data.length ===0 ) {
+    if (!data || data.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty">Tidak ada data ditemukan.</td></tr>';
       return;
     }
@@ -215,9 +215,9 @@
         }));
         // Filter data yang benar-benar punya nilai di salah satu kolom (optional, jika mau tampilkan semua data hapus saja filter ini)
     /*    dataBarang = dataBarang.filter(row => (
-          row.nama || row.barcode || row.lokasi || row.fisik
-      */    
+          row.nama || row.barcode || row.lokasi || row.fisik    
         ));
+     */   
         // Tampilkan data ke tabel
         applyFilter();
       },
