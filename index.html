@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Fisik Fencing</title>
   <style>
-    /* --- GLOBAL STYLE --- */
     body {
       font-family: sans-serif;
       background: #f1f5f9;
       margin: 0;
       padding: 0;
     }
-    /* Container utama (artikel/kotak/tabel) */
     .container {
       max-width: 700px;
       margin: 30px auto 40px;
@@ -21,21 +19,17 @@
       padding: 24px;
       box-shadow: 0 2px 9px rgba(0,0,0,0.06);
     }
-    /* Judul aplikasi */
     h2 {
-      margin: 0 auto 8px;
+      margin-top: 0;
       color: #1e3c72;
       text-align: center;
-      font-weight: 600;
     }
-    /* Wrapper tombol gudang (di tengah) */
     .lokasi-btn-wrap {
       display: flex;
       justify-content: center;
       gap: 10px;
       margin: 0 auto 16px;
     }
-    /* Tombol pilih gudang */
     .lokasi-btn {
       padding: 10px 20px;
       background: #e4e9f7;
@@ -54,7 +48,6 @@
     .lokasi-btn:not(.active):hover {
       background: #d4e0fa;
     }
-    /* Box pencarian */
     .search-box {
       width: 100%;
       padding: 12px;
@@ -64,16 +57,14 @@
       margin-bottom: 16px;
       box-sizing: border-box;
     }
-    /* Area scroll tabel (hanya tabel saja yang bisa discroll) */
     .scroll-table-container {
       margin-top: 8px;
       overflow: auto;
-      max-height: 66vh; 
+      max-height: 66vh;
       border: 1px solid #d1d8e4;
       border-radius: 8px;
       background: #fafbff;
     }
-    /* Style tabel utama */
     #data-table {
       width: 100%;
       border-collapse: collapse;
@@ -99,14 +90,12 @@
     #data-table tbody tr:nth-child(even) {
       background: #f7f9fc;
     }
-    /* Pesan kosong */
-    td.empty { 
+    td.empty {
       font-style: italic;
       color: #718096;
       text-align: center;
       background: #fff;
     }
-    /* Responsif */
     @media (max-width: 600px) {
       .container {
         padding: 8px;
@@ -121,24 +110,16 @@
       }
     }
   </style>
-  <!-- Library Papa Parse untuk parsing CSV -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <h2>Fisik Fencing Gudang</h2>
-    <h2>G5000 dan GM</h2>
-
-    <!-- Baris tombol pilih gudang (letak di tengah, edit di CSS .lokasi-btn-wrap) -->
+    <h2>Fisik Fancing</h2>
     <div class="lokasi-btn-wrap">
       <button class="lokasi-btn" id="g5000-btn">Gudang G5000</button>
       <button class="lokasi-btn" id="gm-btn">Gudang GM</button>
     </div>
-
-    <!-- Box pencarian -->
     <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autocomplete="off"/>
-
-    <!-- Scrollable tabel data -->
     <div class="scroll-table-container">
       <table id="data-table">
         <thead>
@@ -150,46 +131,59 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Tampilan awal: belum memilih gudang -->
           <tr><td colspan="4" class="empty">Silakan pilih gudang terlebih dahulu.</td></tr>
         </tbody>
       </table>
     </div>
   </div>
 <script>
-  // ===== 1. KONFIGURASI FILE CSV GUDANG =====
-  // Ganti link berikut dengan URL CSV publik Anda (Gudang G5000 dan GM)
+  // ===== KONFIGURASI LINK CSV =====
+  // Silakan sesuaikan dengan link spreadsheet Google Sheets Anda
   const CSV_URLS = {
-    "G5000": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv",
-    "GM": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg028wvK1zQ_E6oo5Y3bZYwbbukwI5D_C2vd_dAyChSHWAUnvta-yz9mPY9sy5gqXQ0Thhgd-6MSlo/pub?output=csv"
+    "G5000": "https://docs.google.com/spreadsheets/d/e/G5000-CSV/pub?gid=0&single=true&output=csv",
+    "GM": "https://docs.google.com/spreadsheets/d/e/GM-CSV/pub?gid=0&single=true&output=csv"
   };
 
-  // ===== 2. VARIABEL GLOBAL =====
+  // ===== VARIABEL GLOBAL =====
   let dataBarang = [];      // Menyimpan data asli dari CSV yang dipilih
   let activeLokasi = null;  // Menyimpan gudang yang sedang aktif (G5000/GM)
   let searchKeyword = "";   // Keyword pencarian di kotak search
 
-  // ===== 3. FUNGSI RENDER TABEL =====
-  // Menampilkan data ke tabel berdasarkan hasil parsing CSV
+  // ===== FUNGSI RENDER TABEL =====
   function renderTable(data) {
     const tbody = document.querySelector('#data-table tbody');
     if (!data || data.length === 0) {
       tbody.innerHTML = '<tr><td colspan="4" class="empty">Tidak ada data ditemukan.</td></tr>';
       return;
     }
-    // Kosongkan isi tabel lalu isi dengan data baru
+    // Render baris: jika nilainya null/undefined/string kosong, tampilkan ''. Jika 0 atau "00", tampilkan 0/"00".
     tbody.innerHTML = data.map(barang => `
       <tr>
-        <td>${barang.nama || ''}</td>
-        <td>${barang.barcode || ''}</td>
-        <td>${barang.lokasi || ''}</td>
-        <td>${barang.fisik || ''}</td>
+        <td>${
+          barang.nama === undefined || barang.nama === null || barang.nama === "" ?
+            '' :
+            barang.nama
+        }</td>
+        <td>${
+          barang.barcode === undefined || barang.barcode === null || barang.barcode === "" ?
+            '' :
+            barang.barcode
+        }</td>
+        <td>${
+          barang.lokasi === undefined || barang.lokasi === null || barang.lokasi === "" ?
+            '' :
+            barang.lokasi
+        }</td>
+        <td>${
+          barang.fisik === undefined || barang.fisik === null || barang.fisik === "" ?
+            '' :
+            barang.fisik
+        }</td>
       </tr>
     `).join('');
   }
 
-  // ===== 4. FUNGSI LOAD DATA CSV =====
-  // Load data dari CSV berdasarkan gudang yang dipilih
+  // ===== FUNGSI LOAD DATA CSV =====
   function loadData(lokasi) {
     activeLokasi = lokasi;
     // Bersihkan tabel dan tampilkan pesan loading
@@ -204,35 +198,30 @@
       header: true,
       skipEmptyLines: true,
       dynamicTyping: true,
-      // Jika parsing berhasil, simpan data ke dataBarang
       complete: (results) => {
         // Ambil kolom 1,2,3,4 (index 0,1,2,3), atau sesuaikan dengan struktur CSV Anda
         dataBarang = results.data.map(row => ({
-          nama: row[Object.keys(row)[0]] || '',
-          barcode: row[Object.keys(row)[1]] || '',
-          lokasi: row[Object.keys(row)[2]] || '',
-          fisik: row[Object.keys(row)[3]] || ''
+          nama: row[Object.keys(row)[0]],
+          barcode: row[Object.keys(row)[1]],
+          lokasi: row[Object.keys(row)[2]],
+          fisik: row[Object.keys(row)[3]]
         }));
-        // Filter data yang benar-benar punya nilai di salah satu kolom (optional, jika mau tampilkan semua data hapus saja filter ini)
-    /*    dataBarang = dataBarang.filter(row => (
-          row.nama || row.barcode || row.lokasi || row.fisik    
+        // Filter data yang benar-benar punya nilai di salah satu kolom (optional, silakan dihapus jika ingin tampilkan semua)
+        dataBarang = dataBarang.filter(row => (
+          row.nama !== undefined || row.barcode !== undefined || row.lokasi !== undefined || row.fisik !== undefined
         ));
-  
         // Tampilkan data ke tabel
         applyFilter();
       },
-      // Jika error, tampilkan pesan
       error: (err) => {
         document.querySelector('#data-table tbody').innerHTML =
           '<tr><td colspan="4" class="empty" style="color:red;">Gagal memuat data.</td></tr>';
         console.error(err);
       }
     });
-         */ 
   }
 
-  // ===== 5. FUNGSI LIVE SEARCH =====
-  // Filter data berdasarkan keyword pencarian, hanya pada gudang yang dipilih
+  // ===== FUNGSI LIVE SEARCH =====
   function applyFilter() {
     if (!activeLokasi) {
       renderTable(null);
@@ -240,25 +229,20 @@
     }
     const filtered = searchKeyword ? 
       dataBarang.filter(b => (
-        (b.nama && b.nama.toLowerCase().includes(searchKeyword.toLowerCase())) ||
-        (b.barcode && b.barcode.toLowerCase().includes(searchKeyword.toLowerCase()))
+        (b.nama && b.nama.toString().toLowerCase().includes(searchKeyword.toLowerCase())) ||
+        (b.barcode && b.barcode.toString().toLowerCase().includes(searchKeyword.toLowerCase()))
       )) : dataBarang;
     renderTable(filtered);
   }
 
-  // ===== 6. PASANG EVENT LISTENER =====
-  // Tombol pilih gudang
+  // ===== EVENT LISTENER =====
   document.getElementById('g5000-btn').addEventListener('click', () => loadData('G5000'));
   document.getElementById('gm-btn').addEventListener('click', () => loadData('GM'));
-  // Kotak pencarian
   document.getElementById('search').addEventListener('input', function() {
     searchKeyword = this.value.trim().toLowerCase();
     applyFilter();
   });
-
-  // ===== 7. TIDAK PERLU LOAD DATA OTOMATIS, USER HARUS MEMILIH GUDANG DAHULU =====
-  // Jadi, tombol gudang harus ditekan dulu, baru data di-load dan tabel di-update
-
 </script>
 </body>
 </html>
+
