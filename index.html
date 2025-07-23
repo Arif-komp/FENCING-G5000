@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FISIK FENCING GUDANG G5000</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 700px;
+      margin: 30px auto 40px;
+      background: #fff;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 9px rgba(0,0,0,0.06);
+    }
+    h2 {
+      margin-top: 0;
+      color: #1e3c72;
+      text-align: center;
+    }
+    .search-box {
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1em;
+      border: 2px solid #d4d7dd;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    .scroll-table-container {
+      margin-top: 16px;
+      overflow: auto;
+      max-height: 66vh; /* Scroll hanya di area table */
+      border: 1px solid #d1d8e4;
+      border-radius: 8px;
+      background: #fafbff;
+    }
+    #data-table {
+      width: 100%;
+      border-collapse: collapse; /* garis antar kolom dan baris */
+      background: #fff;
+    }
+    #data-table th,
+    #data-table td {
+      padding: 10px 12px;
+      border: 1px solid #d1d8e4;
+      text-align: left;
+      font-size: 1em;
+      white-space: nowrap;
+      background: inherit;
+    }
+    #data-table th {
+      background: #e4e9f7;
+      color: #1e3c72;
+      position: sticky;
+      top: 0;
+    }
+    #data-table tr:hover {
+      background: #f4f8fa;
+    }
+    #data-table tbody tr:nth-child(even) {
+      background: #f7f9fc;
+    }
+    @media (max-width: 600px) {
+      .container {
+        padding: 8px;
+      }
+      #data-table th, #data-table td {
+        padding: 8px 10px;
+        font-size: .96em;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h2>Fisik Fencing Gudang G5000</h2>
+    <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autofocus autocomplete="off"/>
+    <div class="scroll-table-container">
+      <table id="data-table">
+        <thead>
+          <tr>
+            <th>Nama Produk</th>
+            <th>Barcode</th>
+            <th>Lokasi</th>
+            <th>Fisik</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="4" style="text-align:center;">Ngena Samporo...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<script>
+  // Ganti URL dengan link CSV dari Google Sheets
+  const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv";
+  let dataBarang = [];
+
+  function renderTable(data) {
+    const tbody = document.querySelector('#data-table tbody');
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;font-style:italic;">Tidak ada data ditemukan.</td></tr>';
+      return;
+    } else {
+      // Hapus dulu notifikasi "Memuat data..." jika ada
+      tbody.innerHTML = '';
+    }
+    data.forEach(barang => {
+      tbody.insertAdjacentHTML('beforeend',
+        `<tr>
+          <td>${barang.nama}</td>
+          <td>${barang.barcode}</td>
+          <td>${barang.lokasi}</td>
+          <td>${barang.fisik}</td>
+        </tr>`
+      );
+    });
+  }
+
+  function loadData() {
+    Papa.parse(CSV_URL, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        // Ambil kolom F,G,H,I (header: 5,6,7,8), sesuaikan jika struktur header berbeda
+        dataBarang = results.data
+          .filter(row => row[Object.keys(row)[5]] || row[Object.keys(row)[6]] || row[Object.keys(row)[7]] || row[Object.keys(row)[8]])
+          .map(row => ({
+            nama: row[Object.keys(row)[5]] || '',
+            barcode: row[Object.keys(row)[6]] || '',
+            lokasi: row[Object.keys(row)[7]] || '',
+            fisik: row[Object.keys(row)[8]] || ''
+          }));
+        renderTable(dataBarang);
+      },
+      error: (err) => {
+        document.querySelector('#data-table tbody').innerHTML =
+          '<tr><td colspan="4" style="color:red;text-align:center;">Gagal memuat data.</td></tr>';
+        console.error(err);
+      }
+    });
+  }
+
+  // Live search
+  document.getElementById('search').addEventListener('input', function() {
+    const keyword = this.value.trim().toLowerCase();
+    const filtered = (!keyword) ? dataBarang :
+      dataBarang.filter(b => (
+        (b.nama && b.nama.toLowerCase().includes(keyword)) ||
+        (b.barcode && b.barcode.toLowerCase().includes(keyword))
+      ));
+    renderTable(filtered);
+  });
+
+  // Mulai load data
+  loadData();
+</script>
+</body>
+</html>
