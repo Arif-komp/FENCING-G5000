@@ -1,128 +1,261 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>FISIK FENCING</title>
-  <style>
-    body { font-family: sans-serif; background: #f5f7fa; margin: 0; padding: 10px; }
-    .container { max-width: 900px; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); padding: 20px; }
-    h2 { color: #1e3c72; text-align: center; margin-top: 0; }
-    .search-box { width: 100%; padding: 12px; font-size: 1.1em; border: 2px solid #ddd; border-radius: 6px; margin: 16px 0; box-sizing: border-box; }
-    .lokasi-btn { display: inline-block; background: #e4e9f7; color: #1e3c72; border: 2px solid #d4d7dd; border-radius: 6px; padding: 8px 16px; margin: 0 6px 12px 0; cursor: pointer; font-weight: 600; }
-    .lokasi-btn.active { background: #4b6cb7; color: #fff; border-color: #4b6cb7; }
-    .scroll-table-container { overflow: auto; border: 1px solid #d1d8e4; border-radius: 6px; background: #fff; margin-top: 8px; }
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    table th, table td { border: 1px solid #d1d8e4; padding: 10px 12px; text-align: left; white-space: nowrap; }
-    table th { background: #e4e9f7; color: #1e3c72; font-weight: 600; position: sticky; top: 0; }
-    table tr:hover { background: #f4f8fa; cursor: default; }
-    .loading { text-align: center; color: #777; font-style: italic; margin: 8px 0; }
-    .empty { text-align: center; color: #777; font-style: italic; margin: 8px 0; }
-  </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FISIK FENCING</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            color: #2d3748;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            padding: 24px 28px;
+            position: relative;
+        }
+        h2 {
+            color: #1e3c72;
+            text-align: center;
+            font-weight: 600;
+            margin: 0 0 18px 0;
+            font-size: 1.6rem;
+            letter-spacing: 0.015em;
+        }
+        .lokasi-btn-wrap {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0 18px;
+            gap: 10px;
+        }
+        .lokasi-btn {
+            cursor: pointer;
+            background: rgba(75, 108, 183, 0.08);
+            border: 1px solid rgba(75, 108, 183, 0.18);
+            border-radius: 6px;
+            padding: 10px 22px;
+            color: #1e3c72;
+            font-weight: 600;
+            transition: background-color 0.2s, border-color 0.2s;
+            font-size: 0.96rem;
+            min-width: 120px;
+            text-align: center;
+        }
+        .lokasi-btn.active {
+            background: #4b6cb7;
+            color: #fff;
+            border-color: #4b6cb7;
+        }
+        .lokasi-btn:not(.active):hover {
+            background: rgba(75, 108, 183, 0.15);
+        }
+        .search-box {
+            width: 100%;
+            padding: 12px 16px;
+            font-size: 1.05rem;
+            border: 1px solid #d4d7dd;
+            border-radius: 6px;
+            margin: 16px 0;
+            box-sizing: border-box;
+            color: #2d3748;
+            transition: all 0.2s;
+            outline: none;
+        }
+        .search-box:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.08);
+        }
+        .scroll-table-container {
+            overflow: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #fafbff;
+            margin-top: 16px;
+            max-height: 65vh;
+        }
+        @media (max-width: 600px) {
+            .scroll-table-container {
+                max-height: 60vh;
+            }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            table-layout: fixed;
+        }
+        table th, table td {
+            border: 1px solid #edf2f7;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 0.95rem;
+            vertical-align: top;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        table th {
+            background: #e4e9f7;
+            color: #1e3c72;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        table tr:hover {
+            background: rgba(75, 108, 183, 0.04);
+        }
+        table tr:nth-child(even) {
+            background: rgba(248, 252, 254, 0.6);
+        }
+        .empty {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin: 8px 0;
+            padding: 20px;
+        }
+        .loading {
+            text-align: center;
+            color: #718096;
+            font-style: italic;
+            margin: 8px 0;
+            padding: 20px;
+        }
+        .error {
+            text-align: center;
+            color: #e53e3e;
+            font-weight: 500;
+            padding: 20px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h2>Fisik Fencing Gudang G5000 dan GM</h2>
-    <div>
-      <span class="lokasi-btn" id="g5000-btn">Gudang G5000</span>
-      <span class="lokasi-btn" id="gm-btn">Gudang GM</span>
+    <div class="container">
+        <h2>FISIK FENCING G5000 DAN GM</h2>
+        <div class="lokasi-btn-wrap">
+            <button class="lokasi-btn" id="g5000-btn">Gudang G5000</button>
+            <button class="lokasi-btn" id="gm-btn">Gudang GM</button>
+        </div>
+        <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autocomplete="off">
+        <div class="scroll-table-container">
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>Nama Produk</th>
+                        <th>Barcode</th>
+                        <th>Lokasi</th>
+                        <th>Fisik</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr class="empty"><td colspan="4">Silakan pilih gudang terlebih dahulu.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <input type="text" class="search-box" id="search" placeholder="Cari berdasarkan Nama Produk atau Barcode..." autocomplete="off">
-    <div class="scroll-table-container">
-      <table id="data-table">
-        <thead>
-          <tr>
-            <th>Nama Produk</th>
-            <th>Barcode</th>
-            <th>Lokasi</th>
-            <th>Fisik</th>
-          </tr>
-        </thead>
-        <tbody id="table-body">
-          <tr class="empty"><td colspan="4">Pilih gudang terlebih dahulu.</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 <script>
-  // Ganti dengan URL CSV masing-masing gudang
-  const CSV_URLS = {
-    "G5000": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv",
-    "GM": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg028wvK1zQ_E6oo5Y3bZYwbbukwI5D_C2vd_dAyChSHWAUnvta-yz9mPY9sy5gqXQ0Thhgd-6MSlo/pub?output=csv"
-  };
+    // Ganti dengan URL CSV masing-masing gudang
+    const CSV_URLS = {
+        "G5000": "https://docs.google.com/spreadsheets/d/e/2PACX-1vRmMBbi9lLQweM1ZFNY3vu9KxoYECoGAmUVPqTy_9oELLV5HKLiEbO5TCHEdyndsZKKbPnzV7NRuOm6/pub?output=csv",
+        "GM": "https://docs.google.com/spreadsheets/d/e/2PACX-1vSg028wvK1zQ_E6oo5Y3bZYwbbukwI5D_C2vd_dAyChSHWAUnvta-yz9mPY9sy5gqXQ0Thhgd-6MSlo/pub?output=csv"
+    };
 
-  let dataBarang = [];
-  let activeLokasi = null;
-  let searchKeyword = "";
+    let dataBarang = [];
+    let activeLokasi = null;
+    let searchKeyword = "";
 
-  // Fungsi tampilkan data di tabel
-  function renderTable(data) {
-    const tbody = document.querySelector('#table-body');
-    if (!data) {
-      tbody.innerHTML = '<tr class="empty"><td colspan="4">Pilih gudang terlebih dahulu.</td></tr>';
-      return;
+    // Fungsi render tabel, tampilan data asli sesuai CSV
+    function renderTable(data) {
+        const tbody = document.querySelector('#table-body');
+        if (!data) {
+            // Belum memilih gudang
+            tbody.innerHTML = '<tr class="empty"><td colspan="4">Silakan pilih gudang terlebih dahulu.</td></tr>';
+            return;
+        }
+        if (!data.length) {
+            // Tidak ada data
+            tbody.innerHTML = '<tr class="empty"><td colspan="4">Tidak ada data ditemukan.</td></tr>';
+            return;
+        }
+        // Render data asli (data tidak ada di CSV = kosong, tidak perlu '-')
+        // Jika ingin '-' jika data string kosong, ganti item["Nama Produk"] menjadi formatCell(item["Nama Produk"])
+        tbody.innerHTML = data.map(item => `
+            <tr>
+                <td>${item["Nama Produk"] !== undefined ? item["Nama Produk"] : ''}</td>
+                <td>${item.Barcode !== undefined ? item.Barcode : ''}</td>
+                <td>${item.Lokasi !== undefined ? item.Lokasi : ''}</td>
+                <td>${item.Fisik !== undefined ? item.Fisik : ''}</td>
+            </tr>
+        `).join('');
     }
-    if (!data.length) {
-      tbody.innerHTML = '<tr class="empty"><td colspan="4">Tidak ada data ditemukan.</td></tr>';
-      return;
+
+    // Fungsi format cell (opsional, jika ingin hanya tampilkan '-' jika data string kosong, bukan undefined)
+    function formatCell(value) {
+        if (value === undefined || value === null) return '';
+        return value.toString().trim() === '' ? '-' : value;
     }
-    tbody.innerHTML = data.map(item => `
-      <tr>
-        <td>${item["Nama Produk"] || '-'}</td>
-        <td>${item.Barcode || '-'}</td>
-        <td>${item.Lokasi || '-'}</td>
-        <td>${item.Fisik || '-'}</td>
-      </tr>
-    `).join('');
-  }
 
-  // Fungsi filter data sesuai pencarian
-  function applyFilter() {
-    if (!activeLokasi) {
-      renderTable(null);
-      return;
+    // Fungsi filter data sesuai pencarian
+    function applyFilter() {
+        if (!activeLokasi) {
+            renderTable(null);
+            return;
+        }
+        const filtered = dataBarang.filter(item =>
+            !searchKeyword ||
+            (item["Nama Produk"] && item["Nama Produk"].toString().toLowerCase().includes(searchKeyword.toLowerCase())) ||
+            (item.Barcode && item.Barcode.toString().toLowerCase().includes(searchKeyword.toLowerCase()))
+        );
+        renderTable(filtered);
     }
-    const filtered = dataBarang.filter(item =>
-      !searchKeyword ||
-      (item["Nama Produk"] && item["Nama Produk"].toLowerCase().includes(searchKeyword.toLowerCase())) ||
-      (item.Barcode && item.Barcode.toLowerCase().includes(searchKeyword.toLowerCase()))
-    );
-    renderTable(filtered);
-  }
 
-  // Fungsi load data dari CSV
-  function loadData(lokasi) {
-    activeLokasi = lokasi;
-    document.querySelectorAll('.lokasi-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById(`${lokasi.toLowerCase()}-btn`).classList.add('active');
-    document.querySelector('#table-body').innerHTML = '<tr class="loading"><td colspan="4">Memuat data...</td></tr>';
+    // Fungsi load data dari CSV
+    function loadData(lokasi) {
+        activeLokasi = lokasi;
+        document.querySelectorAll('.lokasi-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`${lokasi.toLowerCase()}-btn`).classList.add('active');
+        document.querySelector('#table-body').innerHTML = '<tr class="loading"><td colspan="4">Memuat data...</td></tr>';
 
-    Papa.parse(CSV_URLS[lokasi], {
-      download: true,
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        dataBarang = results.data;
+        Papa.parse(CSV_URLS[lokasi], {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            dynamicTyping: true,
+            complete: (results) => {
+                // Filter data yang tidak punya value sama sekali
+                dataBarang = results.data
+                    .filter(row => 
+                        Object.values(row).some(v => v !== null && v !== undefined && v !== '')
+                    );
+                applyFilter();
+            },
+            error: (err) => {
+                document.querySelector('#table-body').innerHTML =
+                    '<tr class="error"><td colspan="4">Gagal memuat data.</td></tr>';
+                console.error(err);
+            }
+        });
+    }
+
+    // Tombol pilih gudang
+    document.getElementById('g5000-btn').addEventListener('click', () => loadData('G5000'));
+    document.getElementById('gm-btn').addEventListener('click', () => loadData('GM'));
+
+    // Live search
+    document.getElementById('search').addEventListener('input', function() {
+        searchKeyword = this.value.trim();
         applyFilter();
-      },
-      error: (err) => {
-        document.querySelector('#table-body').innerHTML =
-          '<tr class="empty"><td colspan="4" style="color:red">Gagal memuat data.</td></tr>';
-        console.error(err);
-      }
     });
-  }
-
-  // Tombol pilih gudang
-  document.getElementById('g5000-btn').addEventListener('click', () => loadData('G5000'));
-  document.getElementById('gm-btn').addEventListener('click', () => loadData('GM'));
-
-  // Live search (hanya aktif jika data sudah dimuat)
-  document.getElementById('search').addEventListener('input', function() {
-    searchKeyword = this.value.trim();
-    applyFilter();
-  });
 </script>
 </body>
 </html>
