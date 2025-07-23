@@ -170,12 +170,12 @@
             barang.barcode
         }</td>
         <td>${
-          barang.lokasi === undefined || barang.lokasi === null || barang.lokasi === "" ?
+          barang.lokasi === undefined || barang.lokasi === null || barang.lokasi <0 ?
             '' :
             barang.lokasi
         }</td>
         <td>${
-          barang.fisik === undefined || barang.fisik === null || barang.fisik === "" ?
+          barang.fisik === undefined || barang.fisik === null || barang.fisik <0 ?
             '' :
             barang.fisik
         }</td>
